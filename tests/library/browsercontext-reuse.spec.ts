@@ -128,7 +128,7 @@ test('should reset serviceworker that hangs in importScripts', async ({ reusedCo
   await expect(page).toHaveTitle('Page Title');
 });
 
-test('should not cache main document', async ({ reusedContext, server, browserName }) => {
+test('should not cache main document', async ({ reusedContext, server }) => {
   test.info().annotations.push({ type: 'issue', description: 'https://github.com/microsoft/playwright/issues/19926' });
   let requestCount = 0;
   server.setRoute('/page.html', (req, res) => {
@@ -140,12 +140,16 @@ test('should not cache main document', async ({ reusedContext, server, browserNa
     requestCount++;
   });
 
-  let context = await reusedContext();
-  let page = await context.newPage();
-  await page.goto(server.PREFIX + '/page.html');
-  await expect(page).toHaveTitle('Count: 0');
-  context = await reusedContext();
-  page = context.pages()[0];
-  await page.goto(server.PREFIX + '/page.html');
-  await expect(page).toHaveTitle('Count: 1');
+  {
+    const context = await reusedContext();
+    const page = await context.newPage();
+    await page.goto(server.PREFIX + '/page.html');
+    await expect(page).toHaveTitle('Count: 0');
+  }
+  {
+    const context = await reusedContext();
+    const page = context.pages()[0];
+    await page.goto(server.PREFIX + '/page.html');
+    await expect(page).toHaveTitle('Count: 1');
+  }
 });
