@@ -11,7 +11,7 @@ By setting up projects you can also run a group of tests with different timeouts
 
 By using **projects** you can run your tests in multiple browsers such as chromium, webkit and firefox as well as branded browsers such as Google Chrome and Microsoft Edge. Playwright can also run on emulated tablet and mobile devices. See the [registry of device parameters](https://github.com/microsoft/playwright/blob/main/packages/playwright-core/src/server/deviceDescriptorsSource.json) for a complete list of selected desktop, tablet and mobile devices.
 
-```js
+```js title="playwright.config.ts"
 import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
@@ -101,7 +101,7 @@ Choose a specific profile, various profiles or all profiles to run tests on.
 
 By setting up projects we can also run a group of tests with different timeouts or retries or run a group of tests against different environments. For example we can run our tests against a staging environment with 2 retries as well as against a production environment with 0 retries.
 
-```js
+```js title="playwright.config.ts"
 import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
@@ -156,8 +156,7 @@ Dependencies are a list of projects that need to run before the tests in another
 
 In this example the chromium, firefox and webkit projects depend on the setup project.
 
-```js
-// playwright.config.ts
+```js title="playwright.config.ts"
 import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
