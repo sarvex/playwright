@@ -78,7 +78,6 @@ export class InjectedScript {
   readonly isUnderTest: boolean;
   private _sdkLanguage: Language;
   private _testIdAttributeNameForStrictErrorAndConsoleCodegen: string = 'data-testid';
-  private _markedTargetElements = new Set<Element>();
   // eslint-disable-next-line no-restricted-globals
   readonly window: Window & typeof globalThis;
   readonly document: Document;
@@ -1018,7 +1017,7 @@ export class InjectedScript {
     const attrs = [];
     for (let i = 0; i < element.attributes.length; i++) {
       const { name, value } = element.attributes[i];
-      if (name === 'style' || name.startsWith('__playwright'))
+      if (name === 'style')
         continue;
       if (!value && booleanAttributes.has(name))
         attrs.push(` ${name}`);
@@ -1096,15 +1095,14 @@ export class InjectedScript {
   }
 
   markTargetElements(markedElements: Set<Element>, callId: string) {
-    for (const e of this._markedTargetElements) {
-      if (!markedElements.has(e))
-        e.removeAttribute('__playwright_target__');
-    }
-    for (const e of markedElements) {
-      if (!this._markedTargetElements.has(e))
-        e.setAttribute('__playwright_target__', callId);
-    }
-    this._markedTargetElements = markedElements;
+    const customEvent = new CustomEvent('__playwright_target__', {
+      bubbles: true,
+      cancelable: true,
+      detail: callId,
+      composed: false,
+    });
+    for (const element of markedElements)
+      element.dispatchEvent(customEvent);
   }
 
   private _setupGlobalListenersRemovalDetection() {
@@ -1153,6 +1151,12 @@ export class InjectedScript {
       // expect(locator).not.toBeVisible() passes when there is no element.
       if (options.isNot && options.expression === 'to.be.visible')
         return { matches: false };
+      // expect(locator).toBeAttached({ attached: false }) passes when there is no element.
+      if (!options.isNot && options.expression === 'to.be.detached')
+        return { matches: true };
+      // expect(locator).not.toBeAttached() passes when there is no element.
+      if (options.isNot && options.expression === 'to.be.attached')
+        return { matches: false };
       // expect(locator).not.toBeInViewport() passes when there is no element.
       if (options.isNot && options.expression === 'to.be.in.viewport')
         return { matches: false };
@@ -1191,6 +1195,10 @@ export class InjectedScript {
         elementState = this.elementState(element, 'hidden');
       } else if (expression === 'to.be.visible') {
         elementState = this.elementState(element, 'visible');
+      } else if (expression === 'to.be.attached') {
+        elementState = true;
+      } else if (expression === 'to.be.detached') {
+        elementState = false;
       }
 
       if (elementState !== undefined) {

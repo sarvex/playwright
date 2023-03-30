@@ -470,7 +470,7 @@ interface TestConfig {
    * export default defineConfig({
    *   webServer: {
    *     command: 'npm run start',
-   *     port: 3000,
+   *     url: 'http://127.0.0.1:3000',
    *     timeout: 120 * 1000,
    *     reuseExistingServer: !process.env.CI,
    *   },
@@ -501,19 +501,19 @@ interface TestConfig {
    *   webServer: [
    *     {
    *       command: 'npm run start',
-   *       port: 3000,
+   *       url: 'http://127.0.0.1:3000',
    *       timeout: 120 * 1000,
    *       reuseExistingServer: !process.env.CI,
    *     },
    *     {
    *       command: 'npm run backend',
-   *       port: 3333,
+   *       url: 'http://127.0.0.1:3333',
    *       timeout: 120 * 1000,
    *       reuseExistingServer: !process.env.CI,
    *     }
    *   ],
    *   use: {
-   *     baseURL: 'http://localhost:3000/',
+   *     baseURL: 'http://127.0.0.1:3000',
    *   },
    * });
    * ```
@@ -1728,7 +1728,7 @@ export interface FullConfig<TestArgs = {}, WorkerArgs = {}> {
    * export default defineConfig({
    *   webServer: {
    *     command: 'npm run start',
-   *     port: 3000,
+   *     url: 'http://127.0.0.1:3000',
    *     timeout: 120 * 1000,
    *     reuseExistingServer: !process.env.CI,
    *   },
@@ -1759,19 +1759,19 @@ export interface FullConfig<TestArgs = {}, WorkerArgs = {}> {
    *   webServer: [
    *     {
    *       command: 'npm run start',
-   *       port: 3000,
+   *       url: 'http://127.0.0.1:3000',
    *       timeout: 120 * 1000,
    *       reuseExistingServer: !process.env.CI,
    *     },
    *     {
    *       command: 'npm run backend',
-   *       port: 3333,
+   *       url: 'http://127.0.0.1:3333',
    *       timeout: 120 * 1000,
    *       reuseExistingServer: !process.env.CI,
    *     }
    *   ],
    *   use: {
-   *     baseURL: 'http://localhost:3000/',
+   *     baseURL: 'http://127.0.0.1:3000',
    *   },
    * });
    * ```
@@ -4322,6 +4322,26 @@ interface APIResponseAssertions {
  */
 interface LocatorAssertions {
   /**
+   * Ensures that [Locator] points to an [attached](https://playwright.dev/docs/actionability#attached) DOM node.
+   *
+   * **Usage**
+   *
+   * ```js
+   * await expect(page.getByText('Hidden text')).toBeAttached();
+   * ```
+   *
+   * @param options
+   */
+  toBeAttached(options?: {
+    attached?: boolean;
+
+    /**
+     * Time to retry the assertion for. Defaults to `timeout` in `TestConfig.expect`.
+     */
+    timeout?: number;
+  }): Promise<void>;
+
+  /**
    * Ensures the [Locator] points to a checked input.
    *
    * **Usage**
@@ -4503,8 +4523,7 @@ interface LocatorAssertions {
    * **Usage**
    *
    * ```js
-   * const locator = page.locator('.my-element');
-   * await expect(locator).toBeVisible();
+   * await expect(page.getByText('Welcome')).toBeVisible();
    * ```
    *
    * @param options
