@@ -17,7 +17,7 @@
     "./lib/vitePlugin": "./lib/vitePlugin.js"
   },
   "dependencies": {
-    "vite": "^4.2.1",
+    "vite": "^4.2.3",
     "@playwright/test": "1.33.0-next"
   },
   "bin": {
